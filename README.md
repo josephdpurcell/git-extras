@@ -6,25 +6,33 @@ Git is amazing. Specifically, its ability to be extended is amazing. Essentially
 Installation
 ------------
 
-1. Find your git-core folder:
+### 1. Find your git-core folder
 
-$ find /usr -name "git-core"
+    $ find /usr -name "git-core"
 
 On OS X 10.6 using the MacPorts version of Git I found the directory at /opt/local/libexec/git-core. On OS X 10.8 I found it at /usr/libexec/git-core.
 
-2. Copy the files to your git-core folder:
+### 2. Copy the files to your git-core folder
 
-$ sudo cp git-* /usr/libexec/git-core/
+    $ sudo cp git-* /usr/libexec/git-core/
 
-3. Make those files executable:
+### 3. Make those files executable
 
-$ sudo chmod 755 /usr/libexec/git-core/git-*
+    $ sudo chmod 755 /usr/libexec/git-core/git-*
 
 Thanks to Tim Cunningham for his post on how to "Create your own custom git command!":
 
 http://cfmumbojumbo.com/cf/index.cfm/coding/create-your-own-custom-git-command/
 
+Usage
+-----
+
+All git commands are just files named "git-<command>". So, for example, you can use the git-stash-list command by running:
+
+    $ git stash-list
+
 Contributing
 ------------
 
 Please send any pull requests on GitHub to http://github.com/josephdpurcell/git-extras/.
+
