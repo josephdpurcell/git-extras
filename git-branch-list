@@ -1,0 +1,68 @@
+#!/bin/bash
+if [ "$1" == "-h" ] || [ "$1" == "--help" ]
+then
+    echo "git-branch-list v1.1"
+    echo "
+Lists remote and local branches. Remote tracking branches are in green, remote
+branches that are not tracked are in white, and remote tracking branches whose
+remote branch does not exist are in red. All local branches are marked green."
+    echo ""
+    echo "NOTE: this script does not discriminate between remotes."
+    echo ""
+    echo "Usage:"
+    echo "git branch-list"
+    exit 0
+fi
+
+# Get Branches
+
+REMOTES=$(git branch -r | cut -d"/" -f2 | grep -v "HEAD" | sort | uniq)
+LOCALS=$(git branch | sed "s/^ *//g" | sed "s/^\* //g" | sort | uniq)
+
+# Show Remote Branches
+
+echo $'\e[4;33m'Remote Branches$'\e[0m'
+for branch in $REMOTES
+do
+    exists=0
+    for b in $LOCALS
+    do
+        if [ "$b" == "$branch" ]
+        then
+            exists=1
+            break
+        fi
+    done
+	# show branch as green if the branch exists locally, else white
+    if [ $exists -eq 1 ]
+    then
+        echo $'\e[0;32m'$branch$'\e[0m'
+    else
+        echo $'\e[0;37m'$branch$'\e[0m'
+    fi
+done
+
+
+# Show Local Branches
+
+echo $'\e[4;33m'Local Branches$'\e[0m'
+for branch in $LOCALS
+do
+	exists=0
+	for b in $REMOTES
+	do
+		if [ "$b" == "$branch" ]
+		then
+			exists=1
+			break
+		fi
+	done
+	# show if the branch isn't also a remote
+	if [ $exists -ne 1 ]
+	then
+		echo $'\e[0;32m'$branch$'\e[0m'
+	fi
+done
+
+exit 0
+

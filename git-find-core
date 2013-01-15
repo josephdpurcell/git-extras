@@ -1,0 +1,41 @@
+#!/bin/bash
+if [ "$1" == "-h" ] || [ "$1" == "--help" ]
+then
+    echo "git-find-core v1.0"
+    echo "
+Finds the git-core directory and prints the path. If the path to git-core has
+already been found and it is a valid path, it will print the path. Else, it
+will find the git-core directory and set it in global config as core.path."
+    echo ""
+    echo "Usage:"
+    echo "git find-core"
+    exit 0
+fi
+
+# see if we already have a path set
+DIR=$(git config --get core.path)
+if [ -d "$DIR" ] && [ -f "$DIR/git-log" ]
+then
+	echo $DIR
+	exit 0
+else
+	DIRS=$(find /usr -name "git-core")
+	for DIR in $DIRS
+	do
+		if [ -f "$DIR/git-log" ]
+		then
+			echo $DIR
+			git config --global core.path $DIR
+			exit 0
+		fi
+	done
+	echo "Could not find path to git-core. Please manually run:"
+	echo ""
+	echo -e "\tfind / -name \"git-core\""
+	echo ""
+	echo "And add the directory to your git config:"
+	echo ""
+	echo -e "\tgit config --global core.path <DIR>"
+	exit 1
+fi
+

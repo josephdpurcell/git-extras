@@ -1,0 +1,20 @@
+#!/bin/bash
+if [ "$1" == "-h" ] || [ "$1" == "--help" ]
+then
+    echo "git-purge v1.0"
+    echo "
+Deletes a branch from both the local and remote origin."
+    echo ""
+    echo "WARNING: this action cannot (easily) be undone!"
+    echo ""
+    echo "Usage:"
+    echo "git purge [branch]"
+    exit 0
+fi
+
+for b in $@
+do
+    git branch -D $b
+    git push origin :$b
+done
+
