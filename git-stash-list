@@ -10,9 +10,17 @@ Lists each stash and its diff."
     exit 0
 fi
 
-for y in `git stash list | cut -d":" -f1`
-do
-    echo $'\e[1;33m'$y$'\e[0m'
-    git stash show $y
-done
+if [ "$1" == "--full" ]
+then
+	# Thank you Mark Wilden's coworker Rich Fletcher at Rupter. And thank you
+	# Mark Wilden for posting this tip:
+	# http://blog.mwilden.com/2009/05/listing-contents-of-your-git-stash.html
+	git show $(git stash list | cut -d":" -f 1)
+else
+	for y in `git stash list | cut -d":" -f1`
+	do
+		echo $'\e[1;33m'$y$'\e[0m'
+		git stash show $y
+	done
+fi
 
