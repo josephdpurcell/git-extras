@@ -1,0 +1,91 @@
+#!/bin/bash
+if [ "$1" == "-h" ] || [ "$1" == "--help" ]
+then
+    echo "git-remote-purge v1.0"
+    echo "
+Prompts to delete all remote tracking branches that have been deleted remotely."
+    echo ""
+    echo "Usage:"
+    echo "git remote-purge"
+    echo ""
+    echo "Or, to purge all deleted remote tracking branches:"
+    echo "git remote-purge --all"
+    echo "or"
+    echo "git remote-purge -a"
+    exit 0
+fi
+
+# Get Branches
+
+REMOTES=$(git branch -r | cut -d"/" -f2 | grep -v "HEAD" | sort | uniq)
+LOCALS=$(git branch | sed "s/^ *//g" | sed "s/^\* //g" | sort | uniq)
+ALL=0
+
+if [ "$1" == "--all" ] || [ "$1" == "-a" ]
+then
+    ALL=1
+fi
+
+# Loop through locals
+
+for branch in $LOCALS
+do
+    # Check if local is a remote
+    exists=0
+    for b in $REMOTES
+    do
+        if [ "$b" == "$branch" ]
+        then
+            exists=1
+            break
+        fi
+    done
+
+    # Check if local was a remote tracking
+    if [ $exists -ne 1 ]
+    then
+        DELETE=0
+        REMOTE=$(git config branch.$branch.remote)
+        if [ $REMOTE ]
+        then
+            if [ $ALL -eq 1 ]
+            then
+                # We know what our response is
+                echo "    Purgiing all..."
+                DELETE=1
+            else
+                # Prompt for response
+                echo -n 'Delete branch $branch? ('$'\e[4mY'$'\e[0mes|'$'\e[4mN'$'\e[0mo|'$'\e[4mA'$'\e[0mll|'$'\e[4mE'$'\e[0mxit) '
+                read y
+                case "$y" in
+                    [yY1] | 'yes' )
+                        DELETE=1;;
+                    [nN0] | 'no' )
+                        DELETE=0;;
+                    [aA] | 'all' )
+                        echo "Purging all"
+                        ALL=1
+                        DELETE=1;;
+                    [xXeE] | 'exit' )
+                        echo "Exiting";
+                        exit 1;;
+                    * )
+                        echo "Invalid response";
+                        exit 1;;
+                esac
+            fi
+            # Delete
+            if [ $DELETE -eq 1 ]
+            then
+                echo "    Deleting branch $branch from local..."
+                echo -n "    "
+                git branch -D $branch
+            else
+                echo "    Skipping branch $branch"
+            fi
+        fi
+    fi
+done
+
+exit 0
+
