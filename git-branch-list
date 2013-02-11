@@ -1,7 +1,7 @@
 #!/bin/bash
 if [ "$1" == "-h" ] || [ "$1" == "--help" ]
 then
-    echo "git-branch-list v1.1"
+    echo "git-branch-list v1.2"
     echo "
 Lists remote and local branches. Remote tracking branches are in green, remote
 branches that are not tracked are in white, and remote tracking branches whose
@@ -33,7 +33,7 @@ do
             break
         fi
     done
-	# show branch as green if the branch exists locally, else white
+    # show branch as green if the branch exists locally, else white
     if [ $exists -eq 1 ]
     then
         echo $'\e[0;32m'$branch$'\e[0m'
@@ -48,20 +48,26 @@ done
 echo $'\e[4;33m'Local Branches$'\e[0m'
 for branch in $LOCALS
 do
-	exists=0
-	for b in $REMOTES
-	do
-		if [ "$b" == "$branch" ]
-		then
-			exists=1
-			break
-		fi
-	done
-	# show if the branch isn't also a remote
-	if [ $exists -ne 1 ]
-	then
-		echo $'\e[0;32m'$branch$'\e[0m'
-	fi
+    exists=0
+    for b in $REMOTES
+    do
+        if [ "$b" == "$branch" ]
+        then
+            exists=1
+            break
+        fi
+    done
+    # show if the branch isn't also a remote
+    if [ $exists -ne 1 ]
+    then
+        REMOTE=$(git config branch.$branch.remote)
+        if [ $REMOTE ]
+        then
+            echo $'\e[0;31m'$branch$'\e[0m'
+        else
+            echo $'\e[0;32m'$branch$'\e[0m'
+        fi
+    fi
 done
 
 exit 0
