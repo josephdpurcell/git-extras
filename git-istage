@@ -1,4 +1,5 @@
 #!/bin/bash
+# todo: support using this without being in the root of the repo
 if [ "$1" == "-h" ] || [ "$1" == "--help" ]
 then
     echo "git-istage v1.0"
