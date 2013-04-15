@@ -40,7 +40,10 @@ wait_for_answer()
 		[dD] | 'diff' )
 			git diff $file
 			wait_for_answer;;
-		[xXeEqQ] | 'exit' | 'quit' )
+		[eE] | 'edit' )
+			$EDITOR $file
+			wait_for_answer;;
+		[xXqQ] | 'exit' | 'quit' )
 			echo "Exiting";
 			exit 0;;
 		* )
