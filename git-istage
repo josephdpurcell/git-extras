@@ -20,11 +20,27 @@ fi
 
 wait_for_answer()
 {
+    # check first if the file is tracked
+    # Reference 1: http://stackoverflow.com/a/2406813/990642
+    # Reference 2: http://stackoverflow.com/a/2405572/990642
+    git ls-files $file | grep . > /dev/null
+    if [ $? -eq 0 ]
+    then
+        NEW_FILE=0
+    else
+        NEW_FILE=1
+    fi
+
 	if [ $ALL -eq 1 ]
 	then
 		answer="y"
 	else
-		read -p "Do you want to stage $file? " answer
+        if [ $NEW_FILE -eq 1 ]
+        then
+            read -p "Do you want to stage [NEW FILE] $file? " answer
+        else
+            read -p "Do you want to stage $file? " answer
+        fi
 	fi
 
 	case "$answer" in
@@ -32,13 +48,18 @@ wait_for_answer()
 			STAGE=1
 			stage;;
 		[nN0] | 'no' )
-			echo "Skipping $file";;
+			echo "    Skipping $file";;
 		[aA] | 'all' )
 			STAGE=1
 			ALL=1
 			stage;;
 		[dD] | 'diff' )
-			git diff $file
+            if [ $NEW_FILE -eq 0 ]
+            then
+                git diff $file
+            else
+                git diff --color -- /dev/null $file
+            fi
 			wait_for_answer;;
 		[eE] | 'edit' )
 			$EDITOR $file
@@ -57,14 +78,32 @@ stage()
 {
 	if [ $STAGE -eq 1 ]
 	then
+        echo "    Staging $file"
 		git add $file
 	fi
 }
 
+# tracked files
 FILES=`git diff --name-only`
 ALL=0
 EXIT=0
 for file in $FILES
+do
+	STAGE=0
+	wait_for_answer
+done
+
+# untracked files
+UNTRACKED_FILES=`git ls-files --other --exclude-standard`
+ALL=0
+EXIT=0
+if [ ! -z "$UNTRACKED_FILES" ]
+then
+    echo ""
+    echo "Interactivly staging untracked files..."
+    echo ""
+fi
+for file in $UNTRACKED_FILES
 do
 	STAGE=0
 	wait_for_answer
