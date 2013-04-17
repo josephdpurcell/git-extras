@@ -83,6 +83,11 @@ stage()
 	fi
 }
 
+# make sure we are in the root
+CWD=`pwd`
+ROOTDIR=`git rev-parse --show-toplevel`
+cd $ROOTDIR
+
 # tracked files
 FILES=`git diff --name-only`
 ALL=0
@@ -108,6 +113,9 @@ do
 	STAGE=0
 	wait_for_answer
 done
+
+# go back to current working directory
+cd $CURRDIR
 
 exit $EXIT
 
