@@ -14,7 +14,8 @@ Interactively stage files for committing."
 	echo "    y, Y, 1, yes) Stage the file"
 	echo "    n, N 0, no) Skip staging the file"
 	echo "    d, D, diff) Get the diff for the file"
-	echo "    x, X, e, E, q, Q, exit, quit) Quit"
+	echo "    e, E, edit) Edit the file (using $EDITOR)"
+	echo "    x, X, q, Q, exit, quit) Quit"
     exit 0
 fi
 
