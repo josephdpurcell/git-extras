@@ -7,15 +7,15 @@ then
 Interactively stage files for committing."
     echo ""
     echo "Usage:"
-	echo ""
+    echo ""
     echo "$ git istage"
-	echo ""
-	echo "Then, for each prompt you may enter any of the following:"
-	echo "    y, Y, 1, yes) Stage the file"
-	echo "    n, N 0, no) Skip staging the file"
-	echo "    d, D, diff) Get the diff for the file"
-	echo "    e, E, edit) Edit the file (using $EDITOR)"
-	echo "    x, X, q, Q, exit, quit) Quit"
+    echo ""
+    echo "Then, for each prompt you may enter any of the following:"
+    echo "    y, Y, 1, yes) Stage the file"
+    echo "    n, N 0, no) Skip staging the file"
+    echo "    d, D, diff) Get the diff for the file"
+    echo "    e, E, edit) Edit the file (using $EDITOR)"
+    echo "    x, X, q, Q, exit, quit) Quit"
     exit 0
 fi
 
@@ -32,56 +32,56 @@ wait_for_answer()
         NEW_FILE=1
     fi
 
-	if [ $ALL -eq 1 ]
-	then
-		answer="y"
-	else
+    if [ $ALL -eq 1 ]
+    then
+        answer="y"
+    else
         if [ $NEW_FILE -eq 1 ]
         then
             read -p "Do you want to stage [NEW FILE] $file? " answer
         else
             read -p "Do you want to stage $file? " answer
         fi
-	fi
+    fi
 
-	case "$answer" in
-		[yY1] | 'yes' )
-			STAGE=1
-			stage;;
-		[nN0] | 'no' )
-			echo "    Skipping $file";;
-		[aA] | 'all' )
-			STAGE=1
-			ALL=1
-			stage;;
-		[dD] | 'diff' )
+    case "$answer" in
+        [yY1] | 'yes' )
+            STAGE=1
+            stage;;
+        [nN0] | 'no' )
+            echo "    Skipping $file";;
+        [aA] | 'all' )
+            STAGE=1
+            ALL=1
+            stage;;
+        [dD] | 'diff' )
             if [ $NEW_FILE -eq 0 ]
             then
                 git diff $file
             else
                 git diff --color -- /dev/null $file
             fi
-			wait_for_answer;;
-		[eE] | 'edit' )
-			$EDITOR $file
-			wait_for_answer;;
-		[xXqQ] | 'exit' | 'quit' )
-			echo "Exiting";
-			exit 0;;
-		* )
-			EXIT=1
-			echo "Invalid response";
-			exit 1;;
-	esac
+            wait_for_answer;;
+        [eE] | 'edit' )
+            $EDITOR $file
+            wait_for_answer;;
+        [xXqQ] | 'exit' | 'quit' )
+            echo "Exiting";
+            exit 0;;
+        * )
+            EXIT=1
+            echo "Invalid response";
+            exit 1;;
+    esac
 }
 
 stage()
 {
-	if [ $STAGE -eq 1 ]
-	then
+    if [ $STAGE -eq 1 ]
+    then
         echo "    Staging $file"
-		git add $file
-	fi
+        git add $file
+    fi
 }
 
 # make sure we are in the root
@@ -95,8 +95,8 @@ ALL=0
 EXIT=0
 for file in $FILES
 do
-	STAGE=0
-	wait_for_answer
+    STAGE=0
+    wait_for_answer
 done
 
 # untracked files
@@ -111,8 +111,8 @@ then
 fi
 for file in $UNTRACKED_FILES
 do
-	STAGE=0
-	wait_for_answer
+    STAGE=0
+    wait_for_answer
 done
 
 # go back to current working directory
