@@ -80,7 +80,13 @@ stage()
     if [ $STAGE -eq 1 ]
     then
         echo "    Staging $file"
-        git add $file
+        git diff --diff-filter=D --name-only | grep $file --silent > /dev/null
+        if [ $? -eq 0 ]
+        then
+            git rm $file
+        else
+            git add $file
+        fi
     fi
 }
 
