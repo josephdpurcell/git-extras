@@ -17,10 +17,11 @@ then
     # http://blog.mwilden.com/2009/05/listing-contents-of-your-git-stash.html
     git show $(git stash list | cut -d":" -f 1)
 else
-    for y in `git stash list | cut -d":" -f1`
-    do
-        echo $'\e[1;33m'$y$'\e[0m'
-        git stash show $y
-    done
+    stashes=`git stash list`
+    while read -r stash; do
+        id=`echo $stash | cut -d":" -f1`
+        echo $'\e[1;33m'$stash$'\e[0m'
+        git stash show $id
+    done <<< "$stashes"
 fi
 
