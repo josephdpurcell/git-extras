@@ -1,12 +1,16 @@
 #!/bin/bash
 if [ "$1" == "-h" ] || [ "$1" == "--help" ]
 then
-    echo "git-stash-list v1.0"
+    echo "git-stash-list v1.1"
     echo "
 Lists each stash and its diff."
     echo ""
     echo "Usage:"
-    echo "git stash-list"
+    echo "    git stash-list"
+    echo ""
+    echo "    git stash-list --full"
+    echo ""
+    echo "    git stash-list INDEX"
     exit 0
 fi
 
@@ -16,6 +20,10 @@ then
     # Mark Wilden for posting this tip:
     # http://blog.mwilden.com/2009/05/listing-contents-of-your-git-stash.html
     git show $(git stash list | cut -d":" -f 1)
+elif [ ! -z $1 ]
+then
+    echo $'\e[1;33m'"stash@{$1}"$'\e[0m'
+    git stash show "stash@{$1}"
 else
     stashes=`git stash list`
     while read -r stash; do
