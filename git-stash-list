@@ -14,30 +14,35 @@ Usage:
     exit 0
 fi
 
-if [ "$1" == "--full" ]
+FLAG=$1
+INDEX=$2
+
+if [ ! -z $FLAG ] && [ ! -z $INDEX ]
 then
-    # Thank you Mark Wilden's coworker Rich Fletcher at Rupter. And thank you
-    # Mark Wilden for posting this tip:
-    # http://blog.mwilden.com/2009/05/listing-contents-of-your-git-stash.html
-    git show $(git stash list | cut -d":" -f 1)
-elif [ ! -z $1 ]
-then
-    if [ ! -z $2 ]
+    if [ "$FLAG" == "--full" ]
     then
-        if [ "$1" == "--full" ]
-        then
-            git show "stash@{$2}"
-        else
-            echo "Sorry, I couldn't understand you. What did you say?"
-            sleep 1
-            echo ""
-            echo "Try,"
-            echo "  $ git stash-list 1"
-            exit 1
-        fi
+        git show "stash@{$INDEX}"
     else
-        echo $'\e[1;33m'"stash@{$1}"$'\e[0m'
-        git stash show "stash@{$1}"
+        echo "Sorry, I couldn't understand you. What did you say?"
+        sleep 1
+        echo ""
+        echo "Try,"
+        echo "  $ git stash-list --full 1"
+        exit 1
+    fi
+elif [ ! -z $FLAG ] && [ -z $INDEX]
+then
+    if [ "$FLAG" == "--full" ]
+    then
+        # Thank you Mark Wilden's coworker Rich Fletcher at Rupter. And thank you
+        # Mark Wilden for posting this tip:
+        # http://blog.mwilden.com/2009/05/listing-contents-of-your-git-stash.html
+        git show $(git stash list | cut -d":" -f 1)
+    else
+        INDEX=$FLAG
+        FLAG=''
+        echo $'\e[1;33m'"stash@{$INDEX}"$'\e[0m'
+        git stash show "stash@{$INDEX}"
     fi
 else
     stashes=`git stash list`
@@ -47,4 +52,6 @@ else
         git stash show $id
     done <<< "$stashes"
 fi
+
+exit 0
 
