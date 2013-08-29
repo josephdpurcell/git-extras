@@ -1,4 +1,6 @@
 #!/bin/bash
+# TODO: add a feature to rename a stash (if thats possible)
+#
 EXIT=0
 FORCE=0
 ALL=0
@@ -67,6 +69,8 @@ wait_for_stash_answer()
     then
         answer="y"
     else
+        index=$(($stash - $STASH_INDEX_OFFSET))
+        git show --stat "stash@{$index}"
         read -p "Do you want to purge stash@{$stash}? " answer
     fi
 
