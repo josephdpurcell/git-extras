@@ -1,20 +1,179 @@
 #!/bin/bash
-if [ "$1" == "-h" ] || [ "$1" == "--help" ]
+EXIT=0
+FORCE=0
+ALL=0
+STASH_INDEX_OFFSET=0
+MODE='branches'
+
+usage()
+{
+    echo "git-purge v1.1
+
+Deletes a branch from both the local and remote origin or delete a local stash.
+
+WARNING: this action cannot (easily) be undone!
+
+Usage:
+
+    git purge [BRANCH ...]
+
+    git purge stash [OPTION ...] [INDEX ...]
+
+Options:
+
+        -a, --all                   purge all branches or stashes
+        -f, --force                 force purge all
+        -h                          show help
+        -i, --interactive           interactively purge all
+
+Interactive Options:
+
+    The options when in interactive mode:
+
+        a, A, all                   quit interactive mode and purge all branches/stashes
+        d, D, diff                  show a diff of the current branch/stash
+        h, H, help                  show usage information
+        l, L, list                  show a short list of all stashes
+        n, N, 0, no                 do not purge this branch/stash
+        s, S, stat                  show a stat of the current branch/stash
+        x, X, q, Q, exit, quit      quit the program
+        y, Y, 1, yes                purge this branch/stash
+
+Examples:
+
+    The command:
+
+        git purge branch1 branch2
+
+    will delete branch1 and branch2 from the local repository and the remote repository.
+
+    The command:
+
+        git purge stash 1 2 3
+
+    will delete stashes stash@{1}, stash@{2}, and stash@{3}.
+
+    The command:
+
+        git purge stash --all
+
+    will enter an interactive mode to prompt you to delete stash-by-stash.
+"
+}
+
+wait_for_stash_answer()
+{
+    if [ $FORCE -eq 1 ]
+    then
+        answer="y"
+    else
+        read -p "Do you want to purge stash@{$stash}? " answer
+    fi
+
+    case "$answer" in
+        [aA] | 'all' )
+            PURGE=1
+            FORCE=1
+            purge_stash;;
+        [dD] | 'diff' )
+            index=$(($stash - $STASH_INDEX_OFFSET))
+            git stash show -p "stash@{$index}"
+            wait_for_stash_answer;;
+        [hH] | 'help' )
+            usage
+            wait_for_stash_answer;;
+        [lL] | 'list' )
+            git stash list;;
+        [nN0] | 'no' )
+            echo "    Skipping stash@{$stash}";;
+        [sS] | 'stat' )
+            index=$(($stash - $STASH_INDEX_OFFSET))
+            git show --stat "stash@{$index}"
+            wait_for_stash_answer;;
+        [xXqQ] | 'exit' | 'quit' )
+            echo "Exiting";
+            exit 0;;
+        [yY1] | 'yes' )
+            PURGE=1
+            purge_stash;;
+        * )
+            echo "Invalid response"
+            wait_for_stash_answer;;
+    esac
+}
+
+purge_stash()
+{
+    if [ $PURGE -eq 1 ]
+    then
+        echo "    Purging stash@{$stash}"
+        index=$(($stash - $STASH_INDEX_OFFSET))
+        git stash drop "stash@{$index}"
+        STASH_INDEX_OFFSET=$(($STASH_INDEX_OFFSET + 1))
+    fi
+}
+
+if [ "$1" == "stash" ]
 then
-    echo "git-purge v1.0"
-    echo "
-Deletes a branch from both the local and remote origin."
-    echo ""
-    echo "WARNING: this action cannot (easily) be undone!"
-    echo ""
-    echo "Usage:"
-    echo "git purge [branch]"
+    shift
+    MODE='stashes'
+fi
+
+if [ "$1" == "-h" ] || [ -z $1 ]
+then
+    usage
     exit 0
 fi
 
-for b in $@
-do
-    git branch -D $b
-    git push origin :$b
-done
+if [ "$MODE" == "stashes" ]
+then
+    # we have stashes
+    for param in $@
+    do
+        case "$param" in
+            '-a' | '--all' )
+                shift
+                ALL=1;;
+            '-f' | '--force' )
+                shift
+                FORCE=1;;
+            '-i' | '--interactive' )
+                shift
+                FORCE=0;;
+            * )
+                break;;
+        esac
+    done
+
+    if [ $ALL -eq 1 ]
+    then
+        STASHES=$(git stash list | cut -d":" -f 1 | sed 's/.*{//g' | sed 's/}//g')
+    else
+        STASHES=$@
+    fi
+
+    # check if we have stashes
+    if [ -z "$STASHES" ]
+    then
+        echo "No stashes given."
+        exit 1
+    fi
+
+    # iterate through the stashes and prompt for an answer
+    for stash in $STASHES
+    do
+        PURGE=0
+        wait_for_stash_answer
+    done
+else
+    # we have branches
+    for b in $@
+    do
+        git branch -D $b
+        git push origin :$b
+    done
+    EXIT=0
+fi
+
+exit $EXIT
 

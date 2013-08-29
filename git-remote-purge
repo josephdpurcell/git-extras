@@ -1,4 +1,6 @@
 #!/bin/bash
+# TODO: merge this functionality into git-pruge
+
 if [ "$1" == "-h" ] || [ "$1" == "--help" ]
 then
     echo "git-remote-purge v1.0"
