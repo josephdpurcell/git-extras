@@ -1,4 +1,5 @@
 #!/bin/bash
+# todo: support using this without being in the root of the repo
 if [ "$1" == "-h" ] || [ "$1" == "--help" ]
 then
     echo "git-istage v1.0"
@@ -14,6 +15,7 @@ Interactively stage files for committing."
     echo "    n, N 0, no) Skip staging the file"
     echo "    d, D, diff) Get the diff for the file"
     echo "    e, E, edit) Edit the file (using $EDITOR)"
+    echo "    c, C, checkout) Checkout the file (destroy current changes)"
     echo "    x, X, q, Q, exit, quit) Quit"
     exit 0
 fi
@@ -64,6 +66,8 @@ wait_for_answer()
         [eE] | 'edit' )
             $EDITOR $file
             wait_for_answer;;
+        [cC] | 'checkout' )
+            git checkout $file;;
         [xXqQ] | 'exit' | 'quit' )
             echo "Exiting";
             exit 0;;
