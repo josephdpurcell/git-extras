@@ -1,3 +1,104 @@
 #!/bin/bash
-git log --oneline --no-merges HEAD ^$1
+VERSION='1.0'
+INTERACTIVE=0
+BRANCH1=''
+BRANCH2='HEAD'
+
+function usage()
+{
+echo "
+NAME
+       git-compare - a tool for quickly comparing branches
+
+SYNOPSIS
+       git compare [OPTION] BRANCH1
+
+       git compare [OPTION] BRANCH1 BRANCH2
+
+OPTIONS SUMMARY
+       Here is a short summary of the options available.
+
+        -h, --help                  show help
+        -v, --version               show the version
+        -i, --interactive           run in interactive mode (a full summary of each commit's diff will be shown in a pager)
+
+USAGE
+      By default, git-compare will compare the branch given with HEAD (i.e. the current branch). For example, assuming you have the feature-a branch checked out, the following command will show changes in feature-a branch that are not in the develop branch:
+
+          git compare develop
+
+      The following command will show the same thing, but it doesn't matter what branch you are on:
+
+          git compare develop feature-a
+
+      If you want to compare two branches, but see the full summary of each commit, run in interactive mode:
+
+          git compare -i develop
+
+LICENSE
+      Copyright 2014 Joseph D. Purcell.
+
+      This program is free software; you can redistribute it and/or modify it under the terms of the MIT License. See LICENSE.txt for details. This script will hopefully be useful, but comse WITHOUT ANY WARRANTY, nor the implied warranty that it is useful to anyone.
+
+      https://github.com/josephdpurcell/git-extras
+" | less
+}
+
+while true
+do
+    case $1 in
+        -i|--interactive)
+            INTERACTIVE=1;
+            ;;
+        -v|--version)
+            echo "git-compare version $VERSION"
+            exit 0
+            ;;
+        --)
+            shift
+            break
+            ;;
+        *)
+            if [ "${1:0:1}" == "-" ]
+            then
+                echo "Unknown parameter: $1"
+                exit 0
+            else
+                if [ $# -eq 2 ]
+                then
+                    BRANCH1=$1
+                    shift
+                    BRANCH2=$1
+                elif [ $# -eq 1 ]
+                then
+                    BRANCH1=$1
+                fi
+            fi
+            break
+            ;;
+    esac
+    shift
+done
+
+if [[ -z $BRANCH1 ]] || [[ -z $BRANCH2 ]]
+then
+    echo "Could not determine branches to compare"
+    exit 1
+fi
+
+if [ $INTERACTIVE -eq 1 ]
+then
+    HASHES=`git log --format="%H" --no-merges $BRANCH2 ^$BRANCH1`
+    for HASH in $HASHES
+    do
+        clear
+        git --no-pager log --color -1 -p $HASH | less -RS
+        if [ $? -gt 0 ]
+        then
+            exit 1
+        fi
+    done
+else
+    git log --oneline --no-merges $BRANCH2 ^$BRANCH1
+fi
 
