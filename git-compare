@@ -1,6 +1,7 @@
 #!/bin/bash
 VERSION='1.0'
 INTERACTIVE=0
+REVERSE=0
 BRANCH1=''
 BRANCH2='HEAD'
 
@@ -18,9 +19,10 @@ SYNOPSIS
 OPTIONS SUMMARY
        Here is a short summary of the options available.
 
-        -h, --help                  show help
+        -h                          show help
         -v, --version               show the version
         -i, --interactive           run in interactive mode (a full summary of each commit's diff will be shown in a pager)
+        -r, --reverse               reverse the order of commits
 
 USAGE
       By default, git-compare will compare the branch given with HEAD (i.e. the current branch). For example, assuming you have the feature-a branch checked out, the following command will show changes in feature-a branch that are not in the develop branch:
@@ -47,6 +49,10 @@ LICENSE
 while true
 do
     case $1 in
+        -h)
+            usage
+            exit 0
+            ;;
         -i|--interactive)
             INTERACTIVE=1;
             ;;
@@ -54,8 +60,10 @@ do
             echo "git-compare version $VERSION"
             exit 0
             ;;
+        -r|--reverse)
+            REVERSE=1;
+            ;;
         --)
-            shift
             break
             ;;
         *)
@@ -86,9 +94,17 @@ then
     exit 1
 fi
 
+# determine if we should reverse the order
+if [ $REVERSE -eq 1 ]
+then
+    REVERSE_FLAG='--reverse'
+else
+    REVERSE_FLAG=''
+fi
+
 if [ $INTERACTIVE -eq 1 ]
 then
-    HASHES=`git log --format="%H" --no-merges $BRANCH2 ^$BRANCH1`
+    HASHES=`git log $REVERSE_FLAG --format="%H" --no-merges $BRANCH2 ^$BRANCH1`
     for HASH in $HASHES
     do
         clear
@@ -99,6 +115,6 @@ then
         fi
     done
 else
-    git log --oneline --no-merges $BRANCH2 ^$BRANCH1
+    git log $REVERSE_FLAG --oneline --no-merges $BRANCH2 ^$BRANCH1
 fi
 
