@@ -10,7 +10,7 @@ Installation
 
     $ find /usr -name "git-core"
 
-On OS X 10.6 using the MacPorts version of Git I found the directory at /opt/local/libexec/git-core. On OS X 10.8 I found it at /usr/libexec/git-core.
+On OS X 10.6 and 10.8 using the MacPorts version of Git I found the directory at /opt/local/libexec/git-core. On OS X 10.7 I found it at /usr/libexec/git-core.
 
 ### 2. Copy the files to your git-core folder
 
