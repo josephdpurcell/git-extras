@@ -36,7 +36,7 @@ then
     then
         # Thank you Mark Wilden's coworker Rich Fletcher at Rupter. And thank you
         # Mark Wilden for posting this tip:
-        # http://blog.mwilden.com/2009/05/listing-contents-of-your-git-stash.html
+        # http://mwilden.blogspot.nl/2009/05/listing-contents-of-your-git-stash.html
         git show $(git stash list | cut -d":" -f 1)
     else
         INDEX=$FLAG
