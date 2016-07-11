@@ -1,4 +1,5 @@
 Git Extras
+
 ==========
 
 Git is amazing. Specifically, its ability to be extended is amazing. Essentially any "git <command>" can be made by naming a file "git-<command>" and placing it in your git-core folder. For example, once the "git-stash-list" file is in your git-core folder you can access it via "git stash-list". This repository is a set of extras that are intended to make Git more expressive.
