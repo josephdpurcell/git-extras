@@ -68,6 +68,8 @@ wait_for_answer()
             wait_for_answer;;
         [cC] | 'checkout' )
             git checkout $file;;
+        [rR] | 'rm' )
+            rm -i $file;;
         [xXqQ] | 'exit' | 'quit' )
             echo "Exiting";
             exit 0;;
