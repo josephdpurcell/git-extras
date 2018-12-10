@@ -1,24 +1,27 @@
 #!/bin/bash
 # todo: support using this without being in the root of the repo
-if [ "$1" == "-h" ] || [ "$1" == "--help" ]
-then
-    echo "git-istage v1.0"
-    echo "
-Interactively stage files for committing."
-    echo ""
-    echo "Usage:"
-    echo ""
-    echo "$ git istage"
-    echo ""
-    echo "Then, for each prompt you may enter any of the following:"
-    echo "    y, Y, 1, yes) Stage the file"
-    echo "    n, N 0, no) Skip staging the file"
-    echo "    d, D, diff) Get the diff for the file"
-    echo "    e, E, edit) Edit the file (using $EDITOR)"
-    echo "    c, C, checkout) Checkout the file (destroy current changes)"
-    echo "    x, X, q, Q, exit, quit) Quit"
-    exit 0
-fi
+
+usage()
+{
+    echo "git-istage v1.1
+
+Interactively stage files for committing.
+
+Usage:
+
+    git istage
+
+For each file, you will be prompted to enter one of these values:
+
+    y, Y, 1, yes             Stage the file
+    n, N 0, no               Skip staging the file
+    d, D, diff               Get the diff for the file
+    e, E, edit               Edit the file (using $EDITOR)
+    c, C, checkout           Checkout the file (destroy current changes)
+    h, H, help               Print usage help
+    x, X, q, Q, exit, quit   Quit
+"
+}
 
 wait_for_answer()
 {
@@ -70,6 +73,9 @@ wait_for_answer()
             git checkout $file;;
         [rR] | 'rm' )
             rm -i $file;;
+        [hH] | 'help' )
+            usage
+            wait_for_answer;;
         [xXqQ] | 'exit' | 'quit' )
             echo "Exiting";
             exit 0;;
@@ -94,6 +100,13 @@ stage()
         fi
     fi
 }
+
+# Note: --help gets captured prior to execution
+if [ "$1" == "-h" ] || [ "$1" == "--help" ]
+then
+    usage
+    exit 0
+fi
 
 # make sure we are in the root
 CWD=`pwd`
