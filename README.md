@@ -1,31 +1,40 @@
-Git Extras
-==========
+# Git Extras
 
 Git is amazing. Specifically, its ability to be extended is amazing. Essentially any "git <command>" can be made by naming a file "git-<command>" and placing it in your git-core folder. For example, once the "git-stash-list" file is in your git-core folder you can access it via "git stash-list". This repository is a set of extras that are intended to make Git more expressive.
 
-Installation
-------------
+## Installation
 
-### 1. Find your git-core folder
+There are two methods for installation: you can either put them in your git-core folder OR put these files in your path. On macOS 10.14 Method 1 did not work, but Method 2 did.
+
+### Method 1: git-core folder
+
+#### 1. Find your git-core folder
 
     $ find /usr -name "git-core"
 
 On OS X 10.6 and 10.8 using the MacPorts version of Git I found the directory at /opt/local/libexec/git-core. On OS X 10.7 I found it at /usr/libexec/git-core.
 
-### 2. Copy the files to your git-core folder
+#### 2. Copy (or symlink) the files to your git-core folder
 
     $ sudo cp git-* /usr/libexec/git-core/
 
-### 3. Make those files executable
+#### 3. Make those files executable
 
     $ sudo chmod 755 /usr/libexec/git-core/git-*
 
-Thanks to Tim Cunningham for his post on how to "Create your own custom git command!":
+Thanks to Tim Cunningham for his post on how to "[Create your own custom git command](http://cfmumbojumbo.com/cf/index.cfm/coding/create-your-own-custom-git-command/)".
 
-http://cfmumbojumbo.com/cf/index.cfm/coding/create-your-own-custom-git-command/
+### Method 2: put in $PATH
 
-Usage
------
+In your ~/.bashrc file add this line:
+
+```
+export PATH="/path/to/git-extras/bin:$PATH"
+```
+
+Where "/path/to/git-extras/bin" is the absolute path to this directory.
+
+## Usage
 
 All git commands are just files named "git-<command>". So, for example, you can use the git-stash-list command by running:
 
@@ -123,8 +132,7 @@ Lists each stash and its diff.
      htdocs/file2.txt                                       |   11 ++++++++++-
      3 files changed, 69 insertions(+), 56 deletions(-)
 
-Contributing
-------------
+# Contributing
 
 Please send any pull requests on GitHub to http://github.com/josephdpurcell/git-extras/.
 
