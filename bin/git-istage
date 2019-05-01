@@ -1,11 +1,21 @@
 #!/bin/bash
-# todo: support using this without being in the root of the repo
+# #############################################################################
+# Interactively stage files for committing.
+#
+# Source: https://github.com/josephdpurcell/git-extras
+#
+# TODO: Support using this without being in the root of the repo.
+# #############################################################################
 
 usage()
 {
-    echo "git-istage v1.1
+    echo "git-istage v1.2
 
 Interactively stage files for committing.
+
+This script assists with reviewing large sets of changes before committing. It
+will iterate over all added, changed, removed, and untracked files giving you a
+prompt to change its staged status, edit the file, and other operation.
 
 Usage:
 
@@ -23,7 +33,7 @@ For each file, you will be prompted to enter one of these values:
 "
 }
 
-wait_for_answer()
+_wait_for_answer()
 {
     # check first if the file is tracked
     # Reference 1: http://stackoverflow.com/a/2406813/990642
@@ -51,13 +61,13 @@ wait_for_answer()
     case "$answer" in
         [yY1] | 'yes' )
             STAGE=1
-            stage;;
+            _stage;;
         [nN0] | 'no' )
             echo "    Skipping $file";;
         [aA] | 'all' )
             STAGE=1
             ALL=1
-            stage;;
+            _stage;;
         [dD] | 'diff' )
             if [ $NEW_FILE -eq 0 ]
             then
@@ -65,17 +75,17 @@ wait_for_answer()
             else
                 git diff --color -- /dev/null $file
             fi
-            wait_for_answer;;
+            _wait_for_answer;;
         [eE] | 'edit' )
             $EDITOR $file
-            wait_for_answer;;
+            _wait_for_answer;;
         [cC] | 'checkout' )
             git checkout $file;;
         [rR] | 'rm' )
             rm -i $file;;
         [hH] | 'help' )
             usage
-            wait_for_answer;;
+            _wait_for_answer;;
         [xXqQ] | 'exit' | 'quit' )
             echo "Exiting";
             exit 0;;
@@ -86,7 +96,7 @@ wait_for_answer()
     esac
 }
 
-stage()
+_stage()
 {
     if [ $STAGE -eq 1 ]
     then
@@ -101,29 +111,29 @@ stage()
     fi
 }
 
-# Note: --help gets captured prior to execution
+# Note: --help gets captured prior to interactive staging.
 if [ "$1" == "-h" ] || [ "$1" == "--help" ]
 then
     usage
     exit 0
 fi
 
-# make sure we are in the root
+# Make sure we are in the root.
 CWD=`pwd`
 ROOTDIR=`git rev-parse --show-toplevel`
 cd $ROOTDIR
 
-# tracked files
+# Get tracked files.
 FILES=`git diff --name-only`
 ALL=0
 EXIT=0
 for file in $FILES
 do
     STAGE=0
-    wait_for_answer
+    _wait_for_answer
 done
 
-# untracked files
+# Get untracked files.
 UNTRACKED_FILES=`git ls-files --other --exclude-standard`
 ALL=0
 EXIT=0
@@ -136,10 +146,10 @@ fi
 for file in $UNTRACKED_FILES
 do
     STAGE=0
-    wait_for_answer
+    _wait_for_answer
 done
 
-# go back to current working directory
+# Go back to current working directory.
 cd $CURRDIR
 
 exit $EXIT
